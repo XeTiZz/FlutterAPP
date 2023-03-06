@@ -9,6 +9,18 @@ import 'package:todo_tasks_with_alert/shared/network/local/notification.dart';
 import 'package:todo_tasks_with_alert/shared/styles/thems.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firebase_options.dart';
+
+final FirebaseOptions firebaseOptions = FirebaseOptions(
+  appId: '1:586003730249:android:45a7b11b77e82151c95498',
+  apiKey: 'AIzaSyAxZjRg4rrm0B2R1BhhZn9lBqzFro4Zx_Y',
+  projectId: 'flutter-projet-a29ae',
+  authDomain: 'flutter-projet-a29ae.firebaseapp.com',
+  messagingSenderId: '586003730249',
+  // databaseURL: 'YOUR_DATABASE_URL',
+  // storageBucket: 'YOUR_STORAGE_BUCKET',
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

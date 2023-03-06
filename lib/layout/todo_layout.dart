@@ -50,17 +50,6 @@ class TodoLayout extends StatelessWidget {
                               SizedBox(
                                 height: 2,
                               ),
-                              Text(
-                                todocontroller.currentSelectedDate !=
-                                        DateTime.now()
-                                            .toString()
-                                            .split(' ')
-                                            .first
-                                    ? DateFormat.E().format(DateTime.parse(
-                                        todocontroller.currentSelectedDate))
-                                    : "Aujourd'hui",
-                                style: headerStyle,
-                              ),
                             ],
                           ),
                           defaultButton(
@@ -192,7 +181,7 @@ class TodoLayout extends StatelessWidget {
                     height: 15,
                   ),
                   Text(
-                    "SIGN IN",
+                    "ENREGISTREZ VOUS",
                     style: TextStyle(
                         letterSpacing: 2, fontWeight: FontWeight.bold),
                   ),
