@@ -1,4 +1,5 @@
 import 'package:date_picker_timeline/extra/color.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
@@ -13,9 +14,13 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:todo_tasks_with_alert/shared/network/local/notification.dart';
 import 'package:todo_tasks_with_alert/shared/styles/styles.dart';
 import 'package:todo_tasks_with_alert/shared/styles/thems.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import '../login.dart';
+
 
 class TodoLayout extends StatelessWidget {
   GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
+  bool isLogin = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +31,7 @@ class TodoLayout extends StatelessWidget {
         key: _scaffoldkey,
         // NOTE App Bar
         appBar: _appbar(todocontroller, context),
-
+        
         //NOTE Body
         body: Obx(
           () => todocontroller.isloading.value
@@ -43,8 +48,7 @@ class TodoLayout extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                DateFormat.yMMMMd('fr').format(DateTime.parse(
-                                    todocontroller.currentSelectedDate)),
+                                DateFormat.yMMMMd('fr').format(DateTime.parse(todocontroller.currentSelectedDate)),
                                 style: subHeaderStyle,
                               ),
                               SizedBox(
@@ -180,13 +184,17 @@ class TodoLayout extends StatelessWidget {
                   SizedBox(
                     height: 15,
                   ),
-                  Text(
-                    "ENREGISTREZ VOUS",
-                    style: TextStyle(
-                        letterSpacing: 2, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    "Synchronization disabled...",
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      );
+                    },
+                    title: Text(isLogin ?"Connecté" : "Connectez vous",
+                      style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+                    
+                    ),
                   ),
                 ],
               ),
@@ -204,6 +212,17 @@ class TodoLayout extends StatelessWidget {
               leading: Icon(Icons.search),
               title: Text("Rechercher"),
             ),
+            Visibility(
+              visible: isLogin ? true : false ,
+              child:
+                ListTile(
+                onTap: () {
+                  FirebaseAuth.instance.signOut();
+                },
+                leading: Icon(Icons.logout),
+                title: Text('Déconnexion', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, color: Get.isDarkMode ? Colors.white : Colors.black,)),
+              ),
+            )
           ],
         ),
       );

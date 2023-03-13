@@ -37,6 +37,13 @@
             {
               "client_id": "586003730249-2bvj7565jjn2g5055j6hjd6n4hc5n5hl.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "586003730249-u886gsr8h3sii4jbq97b2ki7ij11pqb1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.todoTasksWithAlert"
+              }
             }
           ]
         }
