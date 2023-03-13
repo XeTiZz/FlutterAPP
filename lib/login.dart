@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 
 import 'auth.dart';
 import 'package:todo_tasks_with_alert/layout/todo_layout.dart';
-
+bool isLogin = false;
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
-
+  
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class LoginScreen extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return TodoLayout(); //TodoLayout()
+            return TodoLayout(isLogin: isLogin); //TodoLayout()
           } else {
             return const AuthScreen();
           }
@@ -50,8 +50,10 @@ class _AuthScreenState extends State<AuthScreen> {
     //Check if is login or register
     if (isLogin) {
       await Auth().registerWithEmailAndPassword(email, password);
+      setState(() => isLogin = true);
     } else {
       await Auth().signInWithEmailAndPassword(email, password);
+      setState(() => isLogin = true);
     }
 
     setState(() => _loading = false);

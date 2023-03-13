@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:todo_tasks_with_alert/layout/todo_layout.dart';
 import 'package:todo_tasks_with_alert/layout/todo_layoutcontroller.dart';
+import 'package:todo_tasks_with_alert/login.dart';
 import 'package:todo_tasks_with_alert/shared/network/local/cashhelper.dart';
 import 'package:todo_tasks_with_alert/shared/network/local/notification.dart';
 import 'package:todo_tasks_with_alert/shared/styles/thems.dart';
@@ -66,7 +67,7 @@ class MyApp extends StatelessWidget {
         Locale('fr'), // french
       ],
       locale: const Locale('fr'),
-      home: TodoLayout(),
+      home: TodoLayout(isLogin: isLogin,),
     );
   }
 }

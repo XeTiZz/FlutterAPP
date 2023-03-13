@@ -19,8 +19,9 @@ import '../login.dart';
 
 
 class TodoLayout extends StatelessWidget {
-  GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
   bool isLogin = false;
+  GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
+  TodoLayout({super.key, required this.isLogin});
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +32,7 @@ class TodoLayout extends StatelessWidget {
         key: _scaffoldkey,
         // NOTE App Bar
         appBar: _appbar(todocontroller, context),
+    
         
         //NOTE Body
         body: Obx(
@@ -208,12 +210,12 @@ class TodoLayout extends StatelessWidget {
             ),
             Divider(),
             ListTile(
-              onTap: () {},
+              onTap: () {Get.to(() => SearchEvents());},
               leading: Icon(Icons.search),
               title: Text("Rechercher"),
             ),
             Visibility(
-              visible: isLogin ? true : false ,
+              visible: isLogin ? true : true ,
               child:
                 ListTile(
                 onTap: () {
