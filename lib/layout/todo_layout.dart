@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_picker_timeline/extra/color.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,7 @@ import '../login.dart';
 class TodoLayout extends StatelessWidget {
   bool isLogin = false;
   GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
-  TodoLayout({super.key, required this.isLogin});
+  TodoLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,7 @@ class TodoLayout extends StatelessWidget {
         key: _scaffoldkey,
         // NOTE App Bar
         appBar: _appbar(todocontroller, context),
-    
+        
         
         //NOTE Body
         body: Obx(

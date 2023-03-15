@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -19,6 +20,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // FirebaseAuth.instance
+  // .userChanges()
+  // .listen((User? user) {
+  //   if (user == null) {
+  //     print('User is currently signed out!');
+  //   } else {
+  //     print('User is signed in!');
+  //   }
+  // });
 
   // NOTE : catch notification  with parameter while app is closed and when on press notification
   FirebaseMessaging.onMessageOpenedApp.listen((message) {
@@ -67,7 +78,7 @@ class MyApp extends StatelessWidget {
         Locale('fr'), // french
       ],
       locale: const Locale('fr'),
-      home: TodoLayout(isLogin: isLogin,),
+      home: TodoLayout(),
     );
   }
 }

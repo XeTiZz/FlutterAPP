@@ -3,12 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'auth.dart';
-import 'register.dart';
 import 'package:todo_tasks_with_alert/layout/todo_layout.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
-  
+class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
   
   // This widget is the root of your application.
   @override
@@ -38,7 +36,6 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   bool isLogin = false;
   bool _loading = false;
-  bool _loading1 = false;
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -52,9 +49,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
     //Check if is login or register
     if (isLogin) {
-      await Auth().registerWithEmailAndPassword(email, password);
-    } else {
       await Auth().signInWithEmailAndPassword(email, password);
+    } else {
+      await Auth().registerWithEmailAndPassword(email, password);
     }
 
     setState(() => _loading = false);
@@ -74,7 +71,7 @@ class _AuthScreenState extends State<AuthScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
-                  "Connexion",
+                  "Inscription",
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),selectionColor: Colors.black,
                 ),
                 const SizedBox(
@@ -139,25 +136,6 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                         )
                       : Text('Connexion'),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                  ),
-                  onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                      ),
-                  child: _loading1
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : Text('Créer un compte'),
                 ),
               ],
             ),
