@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -73,22 +75,6 @@ class TodoLayoutController extends GetxController {
     }
     super.onReady();
   }
-
-// Future<List<Map>> inserteventToDatabase(
-//       {required String title,
-//       required String date,
-//       required String time}) async {
-//     database.transaction((txn) => txn
-//             .rawInsert(
-//                 'insert into $eventTable(title,date,time,status) values("$title","$date","$time","new")')
-//             .then((value) async {
-//           print('inserted successfully');
-//         }).catchError((error) {
-//           print(error.toString());
-//         }));
-
-//     return await GetDataFromDatabase();
-//   }
 
 // NOTE on select date in time line
   void onchangeselectedate(selecteddate) {

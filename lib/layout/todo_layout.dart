@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_picker_timeline/extra/color.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,6 +25,8 @@ class TodoLayout extends StatelessWidget {
   bool isLogin = false;
   GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
   TodoLayout({super.key});
+
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -124,6 +128,11 @@ class TodoLayout extends StatelessWidget {
   }
 
   _appbar(TodoLayoutController todocontroller, BuildContext context) => AppBar(
+    //     backgroundColor: 
+    //   Colors.deepOrange,
+    //   Colors.deepOrange.shade400,
+    //   Colors.deepOrange.shade300,
+    // ],
         title: Text(
           todocontroller.appbar_title[todocontroller.currentIndex],
           style: Theme.of(context).textTheme.headline5,

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -16,12 +17,29 @@ class AddEventScreen extends StatelessWidget {
   var starttimecontroller = TextEditingController();
   var endtimecontroller = TextEditingController();
   var remindcontroller = TextEditingController();
+  var status = "new";
   List<int> remindList = [5, 10, 15, 20];
 
   TodoLayoutController todocontroller = Get.find<TodoLayoutController>();
 
+
   @override
   Widget build(BuildContext context) {
+
+    // Future<void> AddEventScreen() {
+    //   // Call the user's CollectionReference to add a new user
+    //   return note
+    //       .add({
+    //         'title': titlecontroller.text, 
+    //         'date': datecontroller.text,
+    //         'starttime': starttimecontroller,
+    //         'endtime': endtimecontroller,
+    //         'status': "new",
+    //       })
+    //       .then((value) => print("Événements ajouté"))
+    //       .catchError((error) => print("Failed to add événements: $error"));
+    // }
+
     return Scaffold(
       appBar: _appbar(),
       body: _buildFromAddTask(context),
@@ -73,8 +91,6 @@ class AddEventScreen extends StatelessWidget {
                                     firstDate: DateTime.parse('2010-01-01'),
                                     lastDate: DateTime.parse('2030-01-01'))
                                 .then((value) {
-                              //Todo: handle date to string
-                              //print(DateFormat.yMMMd().format(value!));
                               var tdate = value.toString().split(' ');
                               datecontroller.text = tdate[0];
                             });
@@ -101,13 +117,9 @@ class AddEventScreen extends StatelessWidget {
                                           context: context,
                                           initialTime: TimeOfDay.now())
                                       .then((value) {
-                                    // print(value!.format(context).toString());
                                     starttimecontroller.text =
                                         value!.format(context).toString();
                                     print(starttimecontroller.text);
-                                    //! 1970-01-01 time selected:00.000
-                                    // print(DateFormat("hh:mm a")
-                                    //     .parse(timecontroller.text.toString()));
                                   });
                                 },
                                 onvalidate: (value) {
@@ -133,9 +145,6 @@ class AddEventScreen extends StatelessWidget {
                                       .then((value) {
                                     endtimecontroller.text =
                                         value!.format(context).toString();
-                                    //! 1970-01-01 time selected:00.000
-                                    // print(DateFormat("hh:mm a")
-                                    //     .parse(timecontroller.text.toString()));
                                   });
                                 },
                                 onvalidate: (value) {
@@ -174,36 +183,6 @@ class AddEventScreen extends StatelessWidget {
                           },
                         ),
                       ),
-                      // Obx(
-                      //   () => defaultTextFormField(
-                      //     readonly: true,
-                      //     hinttext:
-                      //         "${todocontroller.selectedRemindItem.value} minutes early",
-                      //     controller: remindcontroller,
-                      //     inputtype: TextInputType.name,
-                      //     suffixIcon: DropdownButton(
-                      //       underline: Container(
-                      //         height: 0,
-                      //       ),
-                      //       icon: Icon(Icons.keyboard_arrow_down,
-                      //           color: Colors.grey),
-                      //       iconSize: 25,
-                      //       elevation: 4,
-                      //       items: remindList
-                      //           .map<DropdownMenuItem<String>>((int value) {
-                      //         return DropdownMenuItem<String>(
-                      //             value: value.toString(),
-                      //             child: Text(value.toString()));
-                      //       }).toList(),
-                      //       onChanged: (value) {
-                      //         todocontroller.onchangeremindlist(value);
-                      //         print(todocontroller.selectedRemindItem.value);
-                      //       },
-                      //       //! to display number beside the arrow
-                      //       // value: todocontroller.selectedRemindItem.value,
-                      //     ),
-                      //   ),
-                      // ),
                       SizedBox(
                         height: 10,
                       ),
@@ -229,7 +208,8 @@ class AddEventScreen extends StatelessWidget {
           }),
       actions: [
         ElevatedButton.icon(
-          onPressed: () async {
+          onPressed: () async { 
+            AddEventScreen;
             if (_formkey.currentState!.validate()) {
               //NOTE  am pm to 24 hours
               DateTime date2start = DateFormat("hh:mm")
@@ -255,12 +235,30 @@ class AddEventScreen extends StatelessWidget {
                             status: "new",
                             remind: int.parse(
                                 todocontroller.selectedRemindItem.value)))
-                    // .insertTask(
-                    //     title: titlecontroller.text,
-                    //     date: datecontroller.text,
-                    //     time: timecontroller.text)
                     .then((eventId) {
                   print("eventId " + eventId.toString());
+
+                      // CollectionReference note = FirebaseFirestore.instance.collection('note');
+                  final FirebaseFirestore db = FirebaseFirestore.instance;
+
+                  Map<String, dynamic> note = {
+                  'title': titlecontroller.text,
+                  'date': datecontroller.text,
+                  'starttime': starttime,
+                  'endtime': endtime,
+                  'status': "new",
+                  'remind': int.parse(todocontroller.selectedRemindItem.value)
+                  };
+
+                  db.collection('note').add(note)
+                  .then((documentReference) {
+                    print('Document added with ID: ${documentReference.id}');
+                  });
+
+                  db.collection('note').doc('note_id').set(note)
+                  .then((value) => print("Note ajouté"))
+                  .catchError((error) => print("Failed to add user: $error"));
+                  
                   //NOTE set Notification for event
                   NotificationApi.scheduleNotification(
                       DateTime.parse(

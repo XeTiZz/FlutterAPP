@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -63,7 +65,7 @@ class NotificationApi {
     await notifications.zonedSchedule(
         taskChannelId,
         title,
-        "Tu as un événement le " + time,
+        "Tu as un événement à" + time,
         await tz.TZDateTime.from(scheduleDate, tz.local),
         await _notificationDetails(taskChannelId),
         androidAllowWhileIdle: true,

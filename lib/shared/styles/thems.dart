@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// ignore: unused_import
 import 'package:hexcolor/hexcolor.dart';
 
 const defaultLightColor = Colors.deepOrange;
