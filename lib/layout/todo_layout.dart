@@ -24,7 +24,8 @@ import '../login.dart';
 class TodoLayout extends StatelessWidget {
   bool isLogin = false;
   GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
-  TodoLayout({super.key});
+  TodoLayout({super.key, required this.connected});
+  bool connected;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -203,7 +204,7 @@ class TodoLayout extends StatelessWidget {
                         MaterialPageRoute(builder: (context) => const LoginScreen()),
                       );
                     },
-                    title: Text(isLogin ?"Connecté" : "Connectez vous",
+                    title: Text(connected ?"Connecté" : "Connectez vous",
                       style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
                     
                     ),

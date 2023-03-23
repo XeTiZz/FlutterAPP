@@ -8,7 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'auth.dart';
 import 'register.dart';
 import 'package:todo_tasks_with_alert/layout/todo_layout.dart';
-
+bool connected = false;
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
   
@@ -17,11 +17,12 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return TodoLayout(); //TodoLayout()
+            return TodoLayout(connected: connected); //TodoLayout()
           } else {
             return const AuthScreen();
           }
@@ -42,6 +43,7 @@ class _AuthScreenState extends State<AuthScreen> {
   bool isLogin = false;
   bool _loading = false;
   bool _loading1 = false;
+  
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -54,13 +56,31 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() => _loading = true);
 
     //Check if is login or register
-    if (isLogin) {
-      await Auth().registerWithEmailAndPassword(email, password);
-    } else {
-      await Auth().signInWithEmailAndPassword(email, password);
+    try{
+      if (isLogin) {
+        await Auth().registerWithEmailAndPassword(email, password);
+        connected = true;
+      } else {
+        await Auth().signInWithEmailAndPassword(email, password);
+        connected = true;
+      }
+      setState(() => _loading = false);
+    }on FirebaseAuthException catch (e) {
+      String errorMessage;
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        errorMessage = 'E-mail ou mot de passe invalide';
+        setState(() => _loading = false);
+      } else if (e.code == 'email-already-in-use') {
+        errorMessage = 'L\'e-mail est déjà utilisé';
+        setState(() => _loading = false);
+      } else {
+        errorMessage = 'Une erreur est survenue. Essayer plus tard.';
+        setState(() => _loading = false);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
     }
-
-    setState(() => _loading = false);
   }
 
   @override
@@ -78,7 +98,7 @@ class _AuthScreenState extends State<AuthScreen> {
               children: [
                 const Text(
                   "Connexion",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),selectionColor: Colors.black,
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.deepOrange),
                 ),
                 const SizedBox(
                   height: 20,
@@ -133,7 +153,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
+                          backgroundColor: Colors.deepOrange,
                         ),
                         onPressed: () => handleSubmit(),
                         child: _loading
@@ -151,7 +171,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
+                          backgroundColor: Colors.deepOrange,
                         ),
                         onPressed: () => Navigator.push(
                               context,
@@ -173,6 +193,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
                 TextButton(
                   onPressed: () async {
+                    connected = true;
                     final GoogleSignInAccount? googleUser =
                         await GoogleSignIn().signIn();
                     final GoogleSignInAuthentication? googleAuth =
@@ -188,8 +209,19 @@ class _AuthScreenState extends State<AuthScreen> {
                     final User? user = userCredential.user;
                     // continue with your app logic
                   },
-                  child: Text('Connect with Google'),
-                )
+                  child: Image.asset(
+                    'assets/google_logo.png',
+                    height: 24,
+                  ),
+                ),
+              //   TextButton(
+              //   onPressed: () async {
+              //      // récupérez l'e-mail de l'utilisateur
+              //     await FirebaseAuth.instance.sendPasswordResetEmail(email: _emailController.text);
+              //     // affichez un message à l'utilisateur pour lui indiquer que le lien de réinitialisation a été envoyé
+              //   },
+              //   child: Text('Mot de passe oublié'),
+              // )
               ],
             ),
           ),

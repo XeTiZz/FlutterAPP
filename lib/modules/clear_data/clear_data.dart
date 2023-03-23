@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:todo_tasks_with_alert/layout/todo_layout.dart';
@@ -68,7 +70,8 @@ class _ClearDataState extends State<ClearData> {
             SizedBox(
               height: 10,
             ),
-            defaultButton(
+            Column(children: [
+                defaultButton(
                 text: "Supprimé",
                 background: Colors.red,
                 onpress: () async {
@@ -80,8 +83,7 @@ class _ClearDataState extends State<ClearData> {
                         colorText: Colors.white);
                   } else {
                     await todocontroller
-                        .deleteAllEventBefor(
-                            DateTime.parse(datecontroller.text.toString()))
+                        .deleteAllEventBefor(DateTime.parse(datecontroller.text.toString()))
                         .then((value) {
                       Get.back();
                       Get.snackbar('Données éffacées correctement',
@@ -90,8 +92,68 @@ class _ClearDataState extends State<ClearData> {
                           backgroundColor: Colors.green.shade600,
                           colorText: Colors.white);
                     });
+                    
+                  final FirebaseFirestore db = FirebaseFirestore.instance;
+                  final User? _user = FirebaseAuth.instance.currentUser;
+
+                  if (_user != null) {
+                    Map<String, dynamic> note = {
+                    'idUser': _user.uid,
+                    'date':datecontroller,
+                    '__name__':'TEST',
+                    };
+
+                    db.collection('note')
+                    .where('idUser', isEqualTo: _user.uid)
+                    .where('date', isEqualTo: datecontroller.text)
+                    .get(GetOptions(source: Source.serverAndCache))
+                    .then((snapshot) {
+                        for (DocumentSnapshot doc in snapshot.docs) {
+                          doc.reference.delete();
+                        }
+                      });
+                    }
                   }
-                }),
+                }
+              ),
+              SizedBox(height: 16),
+              defaultButton(
+                text: "Tout supprimé",
+                background: Colors.red,
+                onpress: () async {
+                  await todocontroller
+                      .deleteAllEventBefor(DateTime.parse('2060-03-20'))
+                      .then((value) {
+                    Get.back();
+                    Get.snackbar('Données éffacées correctement',
+                        'Tous les événements ont été supprimés',
+                        snackPosition: SnackPosition.BOTTOM,
+                        backgroundColor: Colors.green.shade600,
+                        colorText: Colors.white);
+                  });
+                  
+                final FirebaseFirestore db = FirebaseFirestore.instance;
+                final User? _user = FirebaseAuth.instance.currentUser;
+
+                if (_user != null) {
+                  Map<String, dynamic> note = {
+                  'idUser': _user.uid,
+                  '__name__':'TEST',
+                  };
+
+                  db.collection('note')
+                  .where('idUser', isEqualTo: _user.uid)
+                  .get(GetOptions(source: Source.serverAndCache))
+                  .then((snapshot) {
+                      for (DocumentSnapshot doc in snapshot.docs) {
+                        doc.reference.delete();
+                      }
+                    });
+                  }
+                }
+              ),
+              ],
+            )
           ],
         ),
       ),

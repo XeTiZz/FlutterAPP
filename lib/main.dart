@@ -20,8 +20,7 @@ import 'auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
 
 
   // NOTE : catch notification  with parameter while app is closed and when on press notification
@@ -71,7 +70,7 @@ class MyApp extends StatelessWidget {
         Locale('fr'), // french
       ],
       locale: const Locale('fr'),
-      home: TodoLayout(),
+      home: TodoLayout(connected: connected),
     );
   }
 }

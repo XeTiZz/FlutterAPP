@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -233,13 +234,13 @@ class AddEventScreen extends StatelessWidget {
                             starttime: starttime,
                             endtime: endtime,
                             status: "new",
-                            remind: int.parse(
-                                todocontroller.selectedRemindItem.value)))
+                            remind: int.parse(todocontroller.selectedRemindItem.value)))
                     .then((eventId) {
                   print("eventId " + eventId.toString());
 
                       // CollectionReference note = FirebaseFirestore.instance.collection('note');
                   final FirebaseFirestore db = FirebaseFirestore.instance;
+                  final User? _user = FirebaseAuth.instance.currentUser;
 
                   Map<String, dynamic> note = {
                   'title': titlecontroller.text,
@@ -247,7 +248,9 @@ class AddEventScreen extends StatelessWidget {
                   'starttime': starttime,
                   'endtime': endtime,
                   'status': "new",
-                  'remind': int.parse(todocontroller.selectedRemindItem.value)
+                  'remind': int.parse(todocontroller.selectedRemindItem.value),
+                  'idUser': _user!.uid,
+                  'idDB': eventId,
                   };
 
                   db.collection('note').add(note)
@@ -257,7 +260,7 @@ class AddEventScreen extends StatelessWidget {
 
                   db.collection('note').doc('note_id').set(note)
                   .then((value) => print("Note ajouté"))
-                  .catchError((error) => print("Failed to add user: $error"));
+                  .catchError((error) => print("Failed to add note: $error"));
                   
                   //NOTE set Notification for event
                   NotificationApi.scheduleNotification(
@@ -269,14 +272,6 @@ class AddEventScreen extends StatelessWidget {
                       eventId,
                       titlecontroller.text,
                       starttimecontroller.text);
-                  // NotificationApi.createNotification(
-                  //     titlecontroller.text,
-                  //     DateTime.parse(
-                  //             datecontroller.text + " " + starttime.toString())
-                  //         .subtract(Duration(
-                  //             minutes: int.parse(
-                  //                 todocontroller.selectedRemindItem.value))),
-                  //     starttimecontroller.text);
                   titlecontroller.text = "";
                   datecontroller.text = "";
                   starttimecontroller.text = "";
