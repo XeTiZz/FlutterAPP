@@ -19,6 +19,7 @@ import 'package:todo_tasks_with_alert/shared/styles/styles.dart';
 import 'package:todo_tasks_with_alert/shared/styles/thems.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../login.dart';
+import '../pfp.dart';
 
 
 class TodoLayout extends StatelessWidget {
@@ -129,11 +130,6 @@ class TodoLayout extends StatelessWidget {
   }
 
   _appbar(TodoLayoutController todocontroller, BuildContext context) => AppBar(
-    //     backgroundColor: 
-    //   Colors.deepOrange,
-    //   Colors.deepOrange.shade400,
-    //   Colors.deepOrange.shade300,
-    // ],
         title: Text(
           todocontroller.appbar_title[todocontroller.currentIndex],
           style: Theme.of(context).textTheme.headline5,
@@ -165,78 +161,89 @@ class TodoLayout extends StatelessWidget {
         ],
       );
 
-  _drawer(BuildContext context) => Drawer(
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(gradient: orangeGradient),
-              padding: EdgeInsets.only(left: 15, right: 15, top: 40),
-              height: 160,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                            backgroundImage:
-                                AssetImage('assets/default profile.png')),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Spacer(),
-                        IconButton(
-                          onPressed: () {},
-                          icon: Icon(Icons.cloud),
-                          color: Colors.grey.shade200,
-                        )
-                      ],
+    _drawer(BuildContext context) => Drawer(
+    child: Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(gradient: orangeGradient),
+          padding: EdgeInsets.only(left: 15, right: 15, top: 40),
+          height: 160,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        // final User? _user = FirebaseAuth.instance.currentUser;
+                        // Navigator.push(
+                          // context,
+                          // MaterialPageRoute(builder: (context) => MyHomePage()),
+                        // );
+                      },
+                      child: CircleAvatar(
+                        backgroundImage: AssetImage('assets/default profile.png'),
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginScreen()),
-                      );
-                    },
-                    title: Text(connected ?"Connecté" : "Connectez vous",
-                      style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
-                    
+                    SizedBox(
+                      width: 10,
                     ),
-                  ),
-                ],
+                    Spacer(),
+                    IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.cloud),
+                      color: Colors.grey.shade200,
+                    )
+                  ],
+                ),
               ),
-            ),
-            ListTile(
-              onTap: () {
-                Get.to(ClearData());
-              },
-              leading: Icon(Icons.delete),
-              title: Text("Effacer les données"),
-            ),
-            Divider(),
-            ListTile(
-              onTap: () {Get.to(() => SearchEvents());},
-              leading: Icon(Icons.search),
-              title: Text("Rechercher"),
-            ),
-            Visibility(
-              visible: isLogin ? true : true ,
-              child:
-                ListTile(
+              SizedBox(
+                height: 15,
+              ),
+              ListTile(
                 onTap: () {
-                  FirebaseAuth.instance.signOut();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
                 },
-                leading: Icon(Icons.logout),
-                title: Text('Déconnexion', style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, color: Get.isDarkMode ? Colors.white : Colors.black,)),
+                title: Text(connected ? "Connecté" : "Connectez vous",
+                  style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
+                ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
-      );
+        ListTile(
+          onTap: () {
+            Get.to(ClearData());
+          },
+          leading: Icon(Icons.delete),
+          title: Text("Effacer les données"),
+        ),
+        Divider(),
+        ListTile(
+          onTap: () {
+            Get.to(() => SearchEvents());
+          },
+          leading: Icon(Icons.search),
+          title: Text("Rechercher"),
+        ),
+        Visibility(
+          visible: isLogin ? true : true,
+          child: ListTile(
+            onTap: () {
+              FirebaseAuth.instance.signOut();
+            },
+            leading: Icon(Icons.logout),
+            title: Text('Déconnexion',
+              style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold, color: Get.isDarkMode ? Colors.white : Colors.black,),
+            ),
+          ),
+        )
+      ],
+    ),
+  );
 }

@@ -1,19 +1,34 @@
 // ignore_for_file: unused_import
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:uuid/uuid.dart';
 
 class Auth {
 //Creating new instance of firebase auth
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> registerWithEmailAndPassword(String email, String password) async {
+
     try{
+
       final user = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
-    );
+      );
+
+      final FirebaseFirestore db = FirebaseFirestore.instance;
+      final User? _user = FirebaseAuth.instance.currentUser;
+      
+      // await getDatabasesPath().then((value) => print(value + "/event.db"));
+
+      // final List<Map<String, dynamic>> rows = await (await db).rawQuery();
+      // final List<Map<String, dynamic>> rows = await (await db).query('example', columns: ['id', 'value']);
+
+
     } on FirebaseAuthException catch (signUpError) {
       if(signUpError is PlatformException) {
         if(signUpError.code == 'ERROR_EMAIL_ALREADY_IN_USE') {
@@ -21,8 +36,6 @@ class Auth {
         }
       }
     }
-
-    // you can also store the user in Database
   }
 
   Future<void> signInWithEmailAndPassword(String email, String password) async {

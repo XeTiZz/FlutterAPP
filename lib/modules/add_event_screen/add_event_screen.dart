@@ -10,6 +10,8 @@ import 'package:todo_tasks_with_alert/shared/network/local/notification.dart';
 import 'package:todo_tasks_with_alert/shared/styles/styles.dart';
 import 'package:todo_tasks_with_alert/shared/styles/thems.dart';
 
+import '../../login.dart';
+
 class AddEventScreen extends StatelessWidget {
   GlobalKey<FormState> _formkey = GlobalKey<FormState>();
 
@@ -238,7 +240,8 @@ class AddEventScreen extends StatelessWidget {
                     .then((eventId) {
                   print("eventId " + eventId.toString());
 
-                      // CollectionReference note = FirebaseFirestore.instance.collection('note');
+                  if(connected == true){
+                  // CollectionReference note = FirebaseFirestore.instance.collection('note');
                   final FirebaseFirestore db = FirebaseFirestore.instance;
                   final User? _user = FirebaseAuth.instance.currentUser;
 
@@ -261,6 +264,7 @@ class AddEventScreen extends StatelessWidget {
                   db.collection('note').doc('note_id').set(note)
                   .then((value) => print("Note ajouté"))
                   .catchError((error) => print("Failed to add note: $error"));
+                  }
                   
                   //NOTE set Notification for event
                   NotificationApi.scheduleNotification(

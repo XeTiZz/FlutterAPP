@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:todo_tasks_with_alert/layout/todo_layout.dart';
 import 'package:todo_tasks_with_alert/layout/todo_layoutcontroller.dart';
+import 'package:todo_tasks_with_alert/login.dart';
 import 'package:todo_tasks_with_alert/shared/componets/componets.dart';
 import 'package:todo_tasks_with_alert/shared/styles/thems.dart';
 
@@ -131,7 +132,8 @@ class _ClearDataState extends State<ClearData> {
                         backgroundColor: Colors.green.shade600,
                         colorText: Colors.white);
                   });
-                  
+
+                if(connected == true){
                 final FirebaseFirestore db = FirebaseFirestore.instance;
                 final User? _user = FirebaseAuth.instance.currentUser;
 
@@ -149,6 +151,7 @@ class _ClearDataState extends State<ClearData> {
                         doc.reference.delete();
                       }
                     });
+                    }  
                   }
                 }
               ),

@@ -1,8 +1,10 @@
 // ignore_for_file: unused_import
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:todo_tasks_with_alert/login.dart';
 
 import 'auth.dart';
@@ -78,6 +80,40 @@ class _AuthScreenState extends State<AuthScreen> {
         SnackBar(content: Text(errorMessage)),
       );
     }
+    
+    Future<List<Map<String, dynamic>>> getAllEvents() async {
+      final db = await openDatabase('todo.db');
+      final List<Map<String, dynamic>> maps = await db.query('events');
+      return maps;
+    }
+
+    final FirebaseFirestore db = FirebaseFirestore.instance;
+    final User? _user = FirebaseAuth.instance.currentUser;
+
+    List<Map<String, dynamic>> events = await getAllEvents();
+
+    // Parcourir les événements et ajouter chaque événement dans Firestore
+    for (var event in events) {
+      Map<String, dynamic> note = {
+        'title': event['title'],
+        'date': event['date'], 
+        'starttime': event['starttime'],
+        'endtime': event['endtime'],
+        'status': event['status'],
+        'remind': event['remind'],
+        'idUser': _user!.uid,
+        'idDB': event['id'],
+      };
+
+      db.collection('note').add(note)
+      .then((documentReference) {
+        print('Document added with ID: ${documentReference.id}');
+      });
+
+      db.collection('note').doc('note_id').set(note)
+      .then((value) => print("Note ajouté"))
+      .catchError((error) => print("Failed to add note: $error"));
+      }
   }
 
   @override

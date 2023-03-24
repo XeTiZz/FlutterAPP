@@ -1,13 +1,16 @@
 // ignore_for_file: unused_import
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'auth.dart';
 import 'register.dart';
 import 'package:todo_tasks_with_alert/layout/todo_layout.dart';
+
 bool connected = false;
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -80,6 +83,35 @@ class _AuthScreenState extends State<AuthScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage)),
       );
+    }
+
+    Future<List<Map<String, dynamic>>> getAllEvents() async {
+      final db = await openDatabase('todo.db');
+      final List<Map<String, dynamic>> maps = await db.query('events');
+      return maps;
+    }
+
+    final FirebaseFirestore db = FirebaseFirestore.instance;
+    final User? _user = FirebaseAuth.instance.currentUser;
+    // print("ICIIIIIIIIII "+_user!.uid);
+    List<Map<String, dynamic>> events = await getAllEvents();
+    if(events.isEmpty){
+      // Effectuer une requête sur Firebase en fonction de l'ID de l'utilisateur
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+      final CollectionReference users = firestore.collection('note');
+      final QuerySnapshot querySnapshot = await users.where('idUser', isEqualTo: _user!.uid).get();
+      final List<QueryDocumentSnapshot> noteDocs = querySnapshot.docs;
+
+      final sqliteDb = await openDatabase('todo.db');
+      // Parcourir les documents pour récupérer les données de l'utilisateur
+      for (var noteDoc in noteDocs) {
+        Map<String, Object?> data = Map.from(noteDoc.data() as Map<String, Object?>);
+        data.remove('idDB');
+        data.remove('idUser');
+        await sqliteDb.insert('events', data);
+      }
+    }else{
+
     }
   }
 
