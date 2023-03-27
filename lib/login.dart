@@ -91,11 +91,11 @@ class _AuthScreenState extends State<AuthScreen> {
       return maps;
     }
 
-    final FirebaseFirestore db = FirebaseFirestore.instance;
     final User? _user = FirebaseAuth.instance.currentUser;
-    // print("ICIIIIIIIIII "+_user!.uid);
     List<Map<String, dynamic>> events = await getAllEvents();
     if(events.isEmpty){
+      // QUAND BASE VIDE
+
       // Effectuer une requête sur Firebase en fonction de l'ID de l'utilisateur
       final FirebaseFirestore firestore = FirebaseFirestore.instance;
       final CollectionReference users = firestore.collection('note');
@@ -110,7 +110,38 @@ class _AuthScreenState extends State<AuthScreen> {
         data.remove('idUser');
         await sqliteDb.insert('events', data);
       }
+
     }else{
+
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+      final CollectionReference users = firestore.collection('users');
+      final QuerySnapshot querySnapshot = await users.where('id', isEqualTo: _user!.uid).get();
+      final List<QueryDocumentSnapshot> userDocs = querySnapshot.docs;
+
+      // Supprimer tous les documents liés à l'utilisateur dans la collection "note"
+      firestore.collection('note')
+        .where('idUser', isEqualTo: _user.uid)
+        .get(GetOptions(source: Source.serverAndCache))
+        .then((snapshot) async {
+      for (DocumentSnapshot doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      final sqliteDb = await openDatabase('todo.db');
+      final List<Map<String, dynamic>> events = (await sqliteDb.rawQuery('SELECT * FROM events'))
+      .map((event) => {'idDB': event['id'], ...event}..remove('id'))
+      .toList();
+
+      // Insérer les informations récupérées dans la collection "note" de Firebase
+      final CollectionReference eventsCollection =
+          firestore.collection('note');
+
+      for (final event in events) {
+        final Map<String, dynamic> eventData = {...event, 'idUser': _user.uid};
+        await eventsCollection.add(eventData);
+      }
+    });
+      
 
     }
   }
@@ -239,7 +270,62 @@ class _AuthScreenState extends State<AuthScreen> {
                         await FirebaseAuth.instance.signInWithCredential(
                             credential);
                     final User? user = userCredential.user;
-                    // continue with your app logic
+
+                    Future<List<Map<String, dynamic>>> getAllEvents() async {
+                      final db = await openDatabase('todo.db');
+                      final List<Map<String, dynamic>> maps = await db.query('events');
+                      return maps;
+                    }
+
+                    final User? _user = FirebaseAuth.instance.currentUser;
+                    List<Map<String, dynamic>> events = await getAllEvents();
+
+                    if(events.isEmpty){
+                      
+                      // Effectuer une requête sur Firebase en fonction de l'ID de l'utilisateur
+                      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+                      final CollectionReference users = firestore.collection('note');
+                      final QuerySnapshot querySnapshot = await users.where('idUser', isEqualTo: _user!.uid).get();
+                      final List<QueryDocumentSnapshot> noteDocs = querySnapshot.docs;
+
+                      final sqliteDb = await openDatabase('todo.db');
+                      // Parcourir les documents pour récupérer les données de l'utilisateur
+                      for (var noteDoc in noteDocs) {
+                        Map<String, Object?> data = Map.from(noteDoc.data() as Map<String, Object?>);
+                        data.remove('idDB');
+                        data.remove('idUser');
+                        await sqliteDb.insert('events', data);
+                      }
+                    }else{
+
+                      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+                      final CollectionReference users = firestore.collection('users');
+                      final QuerySnapshot querySnapshot = await users.where('id', isEqualTo: _user!.uid).get();
+                      final List<QueryDocumentSnapshot> userDocs = querySnapshot.docs;
+
+                      firestore.collection('note')
+                        .where('idUser', isEqualTo: _user.uid)
+                        .get(GetOptions(source: Source.serverAndCache))
+                        .then((snapshot) async {
+                      for (DocumentSnapshot doc in snapshot.docs) {
+                        await doc.reference.delete();
+                      }
+
+                      final sqliteDb = await openDatabase('todo.db');
+                      final List<Map<String, dynamic>> events = (await sqliteDb.rawQuery('SELECT * FROM events'))
+                      .map((event) => {'idDB': event['id'], ...event}..remove('id'))
+                      .toList();
+
+                      // Insérer les informations récupérées dans la collection "note" de Firebase
+                      final CollectionReference eventsCollection =
+                          firestore.collection('note');
+
+                      for (final event in events) {
+                        final Map<String, dynamic> eventData = {...event, 'idUser': _user.uid};
+                        await eventsCollection.add(eventData);
+                      }
+                    });
+                    }
                   },
                   child: Image.asset(
                     'assets/google_logo.png',

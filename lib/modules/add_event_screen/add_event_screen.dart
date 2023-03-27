@@ -260,10 +260,6 @@ class AddEventScreen extends StatelessWidget {
                   .then((documentReference) {
                     print('Document added with ID: ${documentReference.id}');
                   });
-
-                  db.collection('note').doc('note_id').set(note)
-                  .then((value) => print("Note ajouté"))
-                  .catchError((error) => print("Failed to add note: $error"));
                   }
                   
                   //NOTE set Notification for event

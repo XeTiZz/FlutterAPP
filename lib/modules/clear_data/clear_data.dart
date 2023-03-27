@@ -123,7 +123,7 @@ class _ClearDataState extends State<ClearData> {
                 background: Colors.red,
                 onpress: () async {
                   await todocontroller
-                      .deleteAllEventBefor(DateTime.parse('2060-03-20'))
+                      .deleteAllEventBefor(DateTime.parse('2960-03-20'))
                       .then((value) {
                     Get.back();
                     Get.snackbar('Données éffacées correctement',

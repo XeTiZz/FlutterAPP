@@ -236,6 +236,7 @@ class TodoLayout extends StatelessWidget {
           child: ListTile(
             onTap: () {
               FirebaseAuth.instance.signOut();
+              connected = false;
             },
             leading: Icon(Icons.logout),
             title: Text('Déconnexion',
