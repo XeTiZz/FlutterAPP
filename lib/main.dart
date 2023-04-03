@@ -21,6 +21,7 @@ import 'auth.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
+  FirebaseAuth.instance.signOut();
 
 
   // NOTE : catch notification  with parameter while app is closed and when on press notification

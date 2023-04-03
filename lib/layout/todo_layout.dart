@@ -3,6 +3,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_picker_timeline/extra/color.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sqflite/sqflite.dart';
@@ -29,6 +31,19 @@ class TodoLayout extends StatelessWidget {
   bool connected;
 
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final User? _user = FirebaseAuth.instance.currentUser;
+  
+  Future<String> getUserProfileImageUrl() async {
+  final User? _user = FirebaseAuth.instance.currentUser;
+  DatabaseReference dbRef = FirebaseDatabase.instance.reference().child('users/${_user?.uid}');
+  DataSnapshot snapshot = (await dbRef.once()) as DataSnapshot;
+
+  Map<dynamic, dynamic> userValues = snapshot.value as Map<dynamic, dynamic>;
+  String photoUrl = userValues['photoUrl'];
+
+  return photoUrl;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -176,14 +191,43 @@ class TodoLayout extends StatelessWidget {
                 child: Row(
                   children: [
                     InkWell(
-                      onTap: () {
-                        // final User? _user = FirebaseAuth.instance.currentUser;
-                        // Navigator.push(
-                          // context,
-                          // MaterialPageRoute(builder: (context) => MyHomePage()),
-                        // );
-                      },
-                      child: CircleAvatar(
+                      onTap: connected ? () {
+                        final User? _user = FirebaseAuth.instance.currentUser;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ProfilePage()),
+                        );
+                      } : (){},
+                      child: connected ? FutureBuilder<String>(
+                        future: getUserProfileImageUrl(),
+                        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                          // Connexion firestore et user.uid
+                          FirebaseFirestore firestore = FirebaseFirestore.instance;
+                          final User? _user = FirebaseAuth.instance.currentUser;
+                          String? photoUrl = snapshot.data;
+
+                          if (_user?.uid != null) {
+                            return FutureBuilder<QuerySnapshot>(
+                              future: firestore
+                                  .collection('users')
+                                  .where('idUser', isEqualTo: _user?.uid)
+                                  .get(GetOptions(source: Source.serverAndCache)),
+                              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                                  // Récupérer le champ "photoUrl"
+                                  photoUrl = snapshot.data!.docs.first.get('photoUrl');
+                                  return CircleAvatar(backgroundImage: NetworkImage(photoUrl!));
+                                } else {
+                                  return CircleAvatar();
+                                }
+                              },
+                            );
+                          } else {
+                            return CircleAvatar();
+                          }
+                        },
+                      )
+                      : CircleAvatar(
                         backgroundImage: AssetImage('assets/default profile.png'),
                       ),
                     ),
@@ -232,7 +276,7 @@ class TodoLayout extends StatelessWidget {
           title: Text("Rechercher"),
         ),
         Visibility(
-          visible: isLogin ? true : true,
+          visible: connected ? true : false,
           child: ListTile(
             onTap: () {
               FirebaseAuth.instance.signOut();

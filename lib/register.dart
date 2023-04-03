@@ -109,10 +109,6 @@ class _AuthScreenState extends State<AuthScreen> {
       .then((documentReference) {
         print('Document added with ID: ${documentReference.id}');
       });
-
-      db.collection('note').doc('note_id').set(note)
-      .then((value) => print("Note ajouté"))
-      .catchError((error) => print("Failed to add note: $error"));
       }
   }
 

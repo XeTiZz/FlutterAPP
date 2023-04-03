@@ -1,66 +1,93 @@
-// import 'package:firebase_storage/firebase_storage.dart';
-// import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'dart:io';
+import 'dart:io';
 
-// class MyHomePage extends StatefulWidget {
-//   MyHomePage({super.key});
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:math';
 
 
-//   @override
-//   _MyHomePageState createState() => _MyHomePageState();
-// }
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({Key? key}) : super(key: key);
 
-// class _MyHomePageState extends State<MyHomePage> {
-//   File _image = new File('assets/default profile.png');
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
 
-//   Future getImage() async {
-//     final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery);
+class _ProfilePageState extends State<ProfilePage> {
+  final _picker = ImagePicker();
+  File? _image;
 
-//     setState(() {
-//       if (pickedFile != null) {
-//         _image = File(pickedFile.path);
-//       } else {
-//         print('No image selected.');
-//       }
-//     });
-//   }
+  String generateRandomString(int length) {
+  const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  final random = Random();
+  return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
+  }
 
-//   Future uploadFile() async {
-//     final storage = FirebaseStorage.instance;
-//     final ref = storage.ref().child('images/${_image.path}');
-//     final task = ref.putFile(_image);
-//     await task.whenComplete(() => print('File uploaded to Firebase Storage'));
-//   }
+  Future<void> _uploadImage() async {
+    if (_image == null) {
+      return;
+    }
+    final randomFileName = generateRandomString(20) + '.jpg';
+    final ref = FirebaseStorage.instance.ref().child(randomFileName);
+    await ref.putFile(_image!);
+    final url = await ref.getDownloadURL();
+    
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Utilisateur non connecté, gestion de l'erreur
+      return;
+    }
+    await user.updatePhotoURL(url);
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             _image != null
-//                 ? Image.file(
-//                     _image,
-//                     height: 150,
-//                   )
-//                 : Container(),
-//             SizedBox(height: 16),
-//             ElevatedButton(
-//               onPressed: getImage,
-//               child: Text("Choose Image"),
-//             ),
-//             SizedBox(height: 16),
-//             ElevatedButton(
-//               onPressed: _image != null ? uploadFile : null,
-//               child: Text("Upload Image"),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+    final User? _user = FirebaseAuth.instance.currentUser;
+    // Enregistrez l'URL dans Firestore si nécessaire
+    final userData = {'photoUrl': url, 'idUser': _user?.uid};
+    await FirebaseFirestore.instance
+    .collection('users')
+    .doc(user.uid)
+    .set(userData, SetOptions(merge: true));
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) {
+      return;
+    }
+    setState(() {
+      _image = File(pickedFile.path);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Profile'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_image != null) ...[
+              Image.file(_image!),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _uploadImage,
+                child: const Text('Enregistrer'),
+              ),
+            ] else ...[
+              const Icon(Icons.person, size: 128),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _pickImage,
+                child: const Text('Choisir une photo'),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
