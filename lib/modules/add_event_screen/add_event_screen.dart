@@ -28,21 +28,6 @@ class AddEventScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    // Future<void> AddEventScreen() {
-    //   // Call the user's CollectionReference to add a new user
-    //   return note
-    //       .add({
-    //         'title': titlecontroller.text, 
-    //         'date': datecontroller.text,
-    //         'starttime': starttimecontroller,
-    //         'endtime': endtimecontroller,
-    //         'status': "new",
-    //       })
-    //       .then((value) => print("Événements ajouté"))
-    //       .catchError((error) => print("Failed to add événements: $error"));
-    // }
-
     return Scaffold(
       appBar: _appbar(),
       body: _buildFromAddTask(context),

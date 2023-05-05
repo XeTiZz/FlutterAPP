@@ -192,8 +192,7 @@ class TodoLayout extends StatelessWidget {
                   children: [
                     InkWell(
                       onTap: connected ? () {
-                        final User? _user = FirebaseAuth.instance.currentUser;
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => ProfilePage()),
                         );
