@@ -29,7 +29,7 @@ class AddEventScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _appbar(),
+      appBar: _appbar(context),
       body: _buildFromAddTask(context),
     );
   }
@@ -183,80 +183,79 @@ class AddEventScreen extends StatelessWidget {
         ),
       );
 
-  _appbar() {
+  AppBar _appbar(BuildContext context) {
     return AppBar(
       backgroundColor: defaultLightColor,
       leading: IconButton(
-          icon: Icon(
-            Icons.close,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Get.back();
-          }),
+        icon: Icon(
+          Icons.close,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          Get.back();
+        },
+      ),
       actions: [
         ElevatedButton.icon(
-          onPressed: () async { 
-            AddEventScreen;
+          onPressed: () async {
             if (_formkey.currentState!.validate()) {
-              //NOTE  am pm to 24 hours
-              DateTime date2start = DateFormat("hh:mm")
-                  .parse(starttimecontroller.text.toString());
-              DateTime date2end = DateFormat("hh:mm")
-                  .parse(endtimecontroller.text.toString());
-              String starttime =
-                  DateFormat("HH:mm").format(date2start).toString();
-              String endtime = DateFormat("HH:mm").format(date2end).toString();
+              // Convert start and end time to TimeOfDay
+              TimeOfDay startTime = TimeOfDay(
+                hour: int.parse(starttimecontroller.text.split(':')[0]),
+                minute: int.parse(starttimecontroller.text.split(':')[1]),
+              );
+              TimeOfDay endTime = TimeOfDay(
+                hour: int.parse(endtimecontroller.text.split(':')[0]),
+                minute: int.parse(endtimecontroller.text.split(':')[1]),
+              );
 
-              //NOTE compare two time
-              var format = DateFormat("HH:mm");
-              var start = format.parse(starttime);
-              var end = format.parse(endtime);
-              if (start.isBefore(end)) {
-                await todocontroller
-                    .inserteventByModel(
-                        model: new Event(
-                            title: titlecontroller.text,
-                            date: datecontroller.text,
-                            starttime: starttime,
-                            endtime: endtime,
-                            status: "new",
-                            remind: int.parse(todocontroller.selectedRemindItem.value)))
-                    .then((eventId) {
+              if (startTime.hour < endTime.hour || (startTime.hour == endTime.hour && startTime.minute < endTime.minute)) {
+                // Valid time range
+                String starttime = startTime.format(context);
+                String endtime = endTime.format(context);
+
+                await todocontroller.inserteventByModel(
+                  model: new Event(
+                    title: titlecontroller.text,
+                    date: datecontroller.text,
+                    starttime: starttime,
+                    endtime: endtime,
+                    status: "new",
+                    remind: int.parse(todocontroller.selectedRemindItem.value),
+                  ),
+                ).then((eventId) {
                   print("eventId " + eventId.toString());
 
-                  if(connected == true){
-                  // CollectionReference note = FirebaseFirestore.instance.collection('note');
-                  final FirebaseFirestore db = FirebaseFirestore.instance;
-                  final User? _user = FirebaseAuth.instance.currentUser;
+                  if (connected == true) {
+                    final FirebaseFirestore db = FirebaseFirestore.instance;
+                    final User? _user = FirebaseAuth.instance.currentUser;
 
-                  Map<String, dynamic> note = {
-                  'title': titlecontroller.text,
-                  'date': datecontroller.text,
-                  'starttime': starttime,
-                  'endtime': endtime,
-                  'status': "new",
-                  'remind': int.parse(todocontroller.selectedRemindItem.value),
-                  'idUser': _user!.uid,
-                  'idDB': eventId,
-                  };
+                    Map<String, dynamic> note = {
+                      'title': titlecontroller.text,
+                      'date': datecontroller.text,
+                      'starttime': starttime,
+                      'endtime': endtime,
+                      'status': "new",
+                      'remind': int.parse(todocontroller.selectedRemindItem.value),
+                      'idUser': _user!.uid,
+                      'idDB': eventId,
+                    };
 
-                  db.collection('note').add(note)
-                  .then((documentReference) {
-                    print('Document added with ID: ${documentReference.id}');
-                  });
+                    db.collection('note').add(note).then((documentReference) {
+                      print('Document added with ID: ${documentReference.id}');
+                    });
                   }
-                  
-                  //NOTE set Notification for event
+
+                  // Set Notification for event
                   NotificationApi.scheduleNotification(
-                      DateTime.parse(
-                              datecontroller.text + " " + starttime.toString())
-                          .subtract(Duration(
-                              minutes: int.parse(
-                                  todocontroller.selectedRemindItem.value))),
-                      eventId,
-                      titlecontroller.text,
-                      starttimecontroller.text);
+                    DateTime.parse(datecontroller.text + " " + starttime.toString()).subtract(
+                      Duration(minutes: int.parse(todocontroller.selectedRemindItem.value)),
+                    ),
+                    eventId,
+                    titlecontroller.text,
+                    starttimecontroller.text,
+                  );
+
                   titlecontroller.text = "";
                   datecontroller.text = "";
                   starttimecontroller.text = "";
@@ -264,11 +263,13 @@ class AddEventScreen extends StatelessWidget {
                   Get.back();
                 });
               } else {
-                Get.snackbar('Une erreur est survenue',
-                    '"De" doit commencer plus tôt que "Jusqu\'à"',
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: defaultLightColor,
-                    colorText: Colors.white);
+                Get.snackbar(
+                  'Une erreur est survenue',
+                  '"De" doit commencer plus tôt que "Jusqu\'à"',
+                  snackPosition: SnackPosition.BOTTOM,
+                  backgroundColor: defaultLightColor,
+                  colorText: Colors.white,
+                );
               }
             }
           },
@@ -281,4 +282,5 @@ class AddEventScreen extends StatelessWidget {
       ],
     );
   }
+
 }
